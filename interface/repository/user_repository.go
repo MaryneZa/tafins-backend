@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/MaryneZa/tafins/entity"
-	"github.com/MaryneZa/tafins/usecase"
+	"github.com/MaryneZa/tafins-backend/entity"
+	"github.com/MaryneZa/tafins-backend/usecase"
 	"gorm.io/gorm"
 )
 
@@ -10,7 +10,7 @@ type UserRepository struct {
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB) usecase.UserRepository{
+func NewUserRepository(db *gorm.DB) usecase.UserRepository {
 	return &UserRepository{db: db}
 }
 

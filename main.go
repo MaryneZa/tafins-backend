@@ -1,27 +1,25 @@
 package main
 
 import (
-	"os"
 	"fmt"
 	"log"
-	"time"
+	"os"
 	"strconv"
+	"time"
+
+	"github.com/MaryneZa/tafins-backend/entity"
+	"github.com/joho/godotenv"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"gorm.io/driver/postgres"
-	"github.com/joho/godotenv"
-	"github.com/gofiber/fiber/v3"
-	"github.com/MaryneZa/tafins/entity"
-	"github.com/MaryneZa/tafins/interface/repository"
-	"github.com/MaryneZa/tafins/interface/handler"
-	"github.com/MaryneZa/tafins/usecase"
-	"github.com/MaryneZa/tafins/middleware"
+	"github.com/MaryneZa/tafins-backend/routes"
+
 )
 
-func setupDB() *gorm.DB {
-	
+func SetupDB() *gorm.DB {
+
 	err := godotenv.Load()
-	if err != nil{
+	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
@@ -33,18 +31,18 @@ func setupDB() *gorm.DB {
 	if err != nil {
 		log.Fatal("can not load db_port from .env")
 	}
-	
+
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
-	host, user, password, dbname, port)
+		host, user, password, dbname, port)
 
 	log.Println(dsn)
-	
+
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 		logger.Config{
-		  SlowThreshold:   time.Second,   // Slow SQL threshold
-		  LogLevel:        logger.Info, // Log level
-		  Colorful:        true,          // Disable color
+			SlowThreshold: time.Second, // Slow SQL threshold
+			LogLevel:      logger.Info, // Log level
+			Colorful:      true,        // Disable color
 		},
 	)
 
@@ -53,7 +51,7 @@ func setupDB() *gorm.DB {
 	})
 
 	if err != nil {
-		panic("failed to connect to database "+ err.Error())
+		panic("failed to connect to database " + err.Error())
 	}
 
 	log.Println("connect to database successfully !!")
@@ -63,26 +61,11 @@ func setupDB() *gorm.DB {
 
 func main() {
 
-	db := setupDB()
+	db := SetupDB()
 
 	db.AutoMigrate(&entity.User{})
 
-	app := fiber.New()
-
-	userRepo := repository.NewUserRepository(db)
-	userService := usecase.NewUserService(userRepo)
-	userHandler := handler.NewHttpUserHandler(userService)
-
-	app.Post("/signup", userHandler.SignUpHandler)
-	app.Post("/login", userHandler.LogInHandler)
-
-	app.Use(middleware.AuthMiddleware)
-
-	app.Get("/test-auth", func(c fiber.Ctx) error {
-		userID := c.Locals("user_id")
-		return c.SendString(fmt.Sprintf("Hello, World! user_id : %d", userID))
-	})
-	
+	app := routes.SetupRouter(db)
 
 	app.Listen(":8090")
 }

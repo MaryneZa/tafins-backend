@@ -13,7 +13,7 @@ type TokenCustomClaims struct {
 }
 
 
-func AuthMiddleware(c fiber.Ctx) (error){
+func AuthMiddleware(c fiber.Ctx) error {
 	secretKey := os.Getenv("JWT_SECRETKEY")
 
 	cookie := c.Cookies("access_token")

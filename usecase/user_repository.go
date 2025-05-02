@@ -1,6 +1,6 @@
 package usecase
 
-import "github.com/MaryneZa/tafins/entity"
+import "github.com/MaryneZa/tafins-backend/entity"
 
 type UserRepository interface {
 	Save(uer entity.User) error

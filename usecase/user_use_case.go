@@ -6,21 +6,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/MaryneZa/tafins/entity"
+	"github.com/MaryneZa/tafins-backend/entity"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type UserUseCase interface{
+type UserUseCase interface {
 	SignUp(user entity.User) error
 	LogIn(user entity.User) (string, error)
 }
 
-type UserService struct{
+type UserService struct {
 	repo UserRepository
 }
 
-func NewUserService(repo UserRepository) UserUseCase{
+func NewUserService(repo UserRepository) UserUseCase {
 	return &UserService{repo: repo}
 }
 
@@ -35,7 +35,7 @@ func (us *UserService) SignUp(user entity.User) error {
 
 func (us *UserService) LogIn(user entity.User) (string, error) {
 	userDetail, err := us.repo.Get(user)
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 	if err := us.repo.Find(user.Email); err != nil {
@@ -46,7 +46,7 @@ func (us *UserService) LogIn(user entity.User) (string, error) {
 	}
 	token, err := CreateToken(userDetail)
 	if err != nil {
-		return "", err	
+		return "", err
 	}
 	return token, nil
 }
@@ -56,8 +56,8 @@ func CreateToken(user entity.User) (string, error) {
 	log.Println("secretKey: ", secretKey, "user.ID: ", user.ID)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
-			"user_id" : user.ID,
-			"exp": time.Now().Add(time.Hour * 24).Unix(),
+			"user_id": user.ID,
+			"exp":     time.Now().Add(time.Hour * 24).Unix(),
 		})
 	signedToken, err := token.SignedString([]byte(secretKey))
 	if err != nil {
@@ -66,15 +66,12 @@ func CreateToken(user entity.User) (string, error) {
 	return signedToken, nil
 }
 
-
 func HashPassword(password string) (string, error) {
-    bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-    return string(bytes), err
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(bytes), err
 }
 
 func CheckPasswordHash(password, hash string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-    return err == nil
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+	return err == nil
 }
-
-
