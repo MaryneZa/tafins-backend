@@ -18,6 +18,8 @@ func TodoRoutes(db *gorm.DB) *fiber.App {
 
 	app.Post("/create", todoHandler.CreateTodoHandler)
 	app.Get("/get-all", todoHandler.GetAllTodosHandler)
+	app.Get("/get-all-mine", todoHandler.GetAllTodoByUserIDHandler)
+	app.Put("/update", todoHandler.UpdateTodoHandler)
 
 	return app
 

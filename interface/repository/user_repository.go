@@ -14,7 +14,7 @@ func NewUserRepository(db *gorm.DB) usecase.UserRepository {
 	return &UserRepository{db: db}
 }
 
-func (ur *UserRepository) Save(user entity.User) error {
+func (ur *UserRepository) Create(user entity.User) error {
 	return ur.db.Create(&user).Error
 }
 

@@ -22,6 +22,12 @@ type CreateTodoInput struct {
 	CategoryID *uint      `json:"category_id"`
 }
 
+type UpdateTodoInput struct {
+	ID 		   uint      `json:"id" validate:"required"`
+	Title      string    `json:"title"`
+	Date       time.Time `json:"date"`
+}
+
 func (th *HttpTodoHandler) CreateTodoHandler(c fiber.Ctx) error {
 	todo_detail := new(CreateTodoInput)
 	if err := c.Bind().Body(todo_detail); err != nil {
@@ -36,6 +42,7 @@ func (th *HttpTodoHandler) CreateTodoHandler(c fiber.Ctx) error {
 			"error": "user_id not found or invalid",
 		})
 	}
+	
 	todo := entity.Todo{
 		Title: todo_detail.Title,
 		Date: todo_detail.Date,
@@ -44,7 +51,7 @@ func (th *HttpTodoHandler) CreateTodoHandler(c fiber.Ctx) error {
 	}
 
 	if err := th.todoUseCase.CreateTodo(todo); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "cannot create todo !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot create todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Create todo successfully !!"})
 }
@@ -54,19 +61,17 @@ func (th *HttpTodoHandler) UpdateTodoHandler(c fiber.Ctx) error {
 	if err := c.Bind().Body(todo); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	if err := validate.Struct(todo); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input"})
-	}
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
-	}
-	todo.UserID = userID
+
+	// userID, ok := c.Locals("user_id").(uint)
+	// if !ok {
+	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+	// 		"error": "user_id not found or invalid",
+	// 	})
+	// }
+	// todo.UserID = userID
 
 	if err := th.todoUseCase.UpdateTodo(*todo); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "cannot update todo !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot update todo !!" + err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Update todo successfully !!"})
 
@@ -82,7 +87,7 @@ func (th *HttpTodoHandler) GetAllTodoByUserIDHandler(c fiber.Ctx) error {
 
 	todos, err := th.todoUseCase.GetAllTodosByUserID(userID)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "cannot retreive all todo !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive all todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"todos" : todos, 
@@ -103,7 +108,7 @@ func (th *HttpTodoHandler) GetTodoByIDHandler(c fiber.Ctx) error {
 
 	todo, err := th.todoUseCase.GetTodo(id)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "cannot retreive todo !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"todo" : todo, 
@@ -114,7 +119,7 @@ func (th *HttpTodoHandler) GetTodoByIDHandler(c fiber.Ctx) error {
 func (th *HttpTodoHandler) GetAllTodosHandler(c fiber.Ctx) error {
 	todos, err := th.todoUseCase.GetAllTodos(); 
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "cannot retreive all todo !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive all todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"todos" : todos, 

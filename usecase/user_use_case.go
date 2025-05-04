@@ -30,7 +30,7 @@ func (us *UserService) SignUp(user entity.User) error {
 		return err
 	}
 	user.Password = hashPassword
-	return us.repo.Save(user)
+	return us.repo.Create(user)
 }
 
 func (us *UserService) LogIn(user entity.User) (string, error) {

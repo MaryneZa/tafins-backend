@@ -61,7 +61,7 @@ func (tr *TodoRepository) GetAllByUserID(user_id uint) ([]entity.Todo, error) {
 }
 
 func (tr *TodoRepository) Update(todo entity.Todo) error {
-	result := tr.db.Save(todo)
+	result := tr.db.Model(&todo).Update("title", &todo.Title)
 	if result.Error != nil {
 		return result.Error
 	}

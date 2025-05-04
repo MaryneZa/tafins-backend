@@ -7,6 +7,7 @@ import (
 
 type Todo struct {
 	gorm.Model
+	ID     			uint   			`json:"id" gorm:"primarykey"`
 	Title			string			`json:"title"`
 	Status			string			`json:"status"`
 	Date			time.Time		`json:"date"`

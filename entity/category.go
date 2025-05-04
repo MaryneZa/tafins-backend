@@ -6,6 +6,8 @@ import (
 
 type Category struct {
 	gorm.Model
-	Name		string		`json:"name"`
-	Todos 		[]Todo 		`gorm:"foreignKey:CategoryID"`
+	Name		string		`json:"name" validate:"required"`
+	UserID		uint		`json:"user_id" validate:"required"`
+
+	Todos 		[]Todo 		`gorm:"foreignKey:CategoryID;references:ID"`
 }

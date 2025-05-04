@@ -17,6 +17,7 @@ func SetupRouter(db *gorm.DB) *fiber.App{
 	
 	app.Use("/user", UserRoutes(db))
 	app.Use("/todo", TodoRoutes(db))
+	app.Use("/category", CategoryRoute(db))
 
 	return app
 }

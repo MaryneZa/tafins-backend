@@ -33,7 +33,7 @@ func (u *HttpUserHandler) SignUpHandler(c fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("unable to create user " + err.Error())
 	}
 
-	return c.JSON(fiber.Map{"message": "sign up success !"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "sign up success !"})
 }
 
 func (u *HttpUserHandler) LogInHandler(c fiber.Ctx) error {
