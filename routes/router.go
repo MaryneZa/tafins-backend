@@ -16,6 +16,7 @@ func SetupRouter(db *gorm.DB) *fiber.App{
 	app.Use(middleware.AuthMiddleware)
 	
 	app.Use("/user", UserRoutes(db))
+	app.Use("/todo", TodoRoutes(db))
 
 	return app
 }
