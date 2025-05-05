@@ -13,5 +13,7 @@ type Transaction struct{
 	TransactionDate *time.Time	`json:"transaction_date"`
 
 	TodoID          uint		`json:"todo_id"`
-	Todo            Todo        `gorm:"foreignKey:TodoID"`
+	UserID			uint		`json:"user_id"`
+
+	// Todo            Todo        `gorm:"foreignKey:TodoID"`
 }

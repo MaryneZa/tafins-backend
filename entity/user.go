@@ -14,6 +14,7 @@ type User struct{
 	Birthday     time.Time 		`json:"birthday"`
 	Todos		 []Todo	 		`json:"todos" gorm:"foreignKey:UserID;references:ID"`
 	Categories	 []Category 	`json:"categories" gorm:"foreignKey:UserID;references:ID"`
+	Transactions []Transaction 	`json:"transactions" gorm:"foreignKey:UserID;references:ID"`
 	MoneyGoals   []MoneyGoal	`json:"money_goals" gorm:"foreignKey:UserID;references:ID"`
 	Budgets   	 []Budget		`json:"budgets" gorm:"foreignKey:UserID;references:ID"`
 }
