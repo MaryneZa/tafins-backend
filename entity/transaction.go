@@ -7,13 +7,12 @@ import (
 
 type Transaction struct{
 	gorm.Model
-	Type			string		`json:"type"`
+	Type			string		`json:"type" gorm:"default:null;not null"` // default expense | receive 
 	Title			string		`json:"title"`
 	Amount			float32		`json:"amount"`
 	TransactionDate *time.Time	`json:"transaction_date"`
 
 	TodoID          uint		`json:"todo_id"`
 	UserID			uint		`json:"user_id"`
-
-	// Todo            Todo        `gorm:"foreignKey:TodoID"`
 }
+// Todo            Todo        `gorm:"foreignKey:TodoID"`

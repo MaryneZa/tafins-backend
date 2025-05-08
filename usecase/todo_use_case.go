@@ -30,11 +30,11 @@ func (ts *TodoService) GetTodo(id uint) (entity.Todo, error) {
 }
 
 func (ts *TodoService) GetAllTodos() ([]entity.Todo, error) {
-	return ts.repo.GetAll()
+	return ts.repo.FindAll()
 }
 
-func (ts *TodoService) GetAllTodosByUserID(user_id uint) ([]entity.Todo, error) {
-	return ts.repo.GetAllByUserID(user_id)
+func (ts *TodoService) GetAllTodosByUserID(userID uint) ([]entity.Todo, error) {
+	return ts.repo.FindByUser(userID)
 }
 
 func (ts *TodoService) UpdateTodo(todo entity.Todo) error {

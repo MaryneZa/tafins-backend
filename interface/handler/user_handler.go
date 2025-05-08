@@ -56,6 +56,7 @@ func (u *HttpUserHandler) LogInHandler(c fiber.Ctx) error {
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 72),
 		HTTPOnly: true,
+		
 	})
 	
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

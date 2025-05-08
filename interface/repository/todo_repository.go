@@ -29,7 +29,7 @@ func (tr *TodoRepository) Get(id uint) (entity.Todo, error) {
 	return todo, nil
 }
 
-func (tr *TodoRepository) GetAll() ([]entity.Todo, error) {
+func (tr *TodoRepository) FindAll() ([]entity.Todo, error) {
 	var todos []entity.Todo
 	if err := tr.db.Preload("User").
 		Preload("Category").
@@ -41,10 +41,10 @@ func (tr *TodoRepository) GetAll() ([]entity.Todo, error) {
 	return todos, nil
 }
 
-func (tr *TodoRepository) GetAllByUserID(user_id uint) ([]entity.Todo, error) {
+func (tr *TodoRepository) FindByUser(userID uint) ([]entity.Todo, error) {
 	var todos []entity.Todo
 
-	if err := tr.db.Where("user_id = ?", user_id).
+	if err := tr.db.Where("user_id = ?", userID).
 		Preload("User").
 		Preload("Category").
 		Preload("Transactions").

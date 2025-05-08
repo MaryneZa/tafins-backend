@@ -3,6 +3,7 @@ package handler
 import (
 	"strconv"
 	"time"
+
 	"github.com/MaryneZa/tafins-backend/entity"
 	"github.com/MaryneZa/tafins-backend/usecase"
 	"github.com/gofiber/fiber/v3"
@@ -19,21 +20,21 @@ func NewHttpTodoHandler(todoUseCase usecase.TodoUseCase) *HttpTodoHandler {
 type CreateTodoInput struct {
 	Title      string    `json:"title" validate:"required"`
 	Date       time.Time `json:"date" validate:"required"`
-	CategoryID *uint      `json:"category_id"`
+	CategoryID *uint     `json:"category_id"`
 }
 
 type UpdateTodoInput struct {
-	ID 		   uint      `json:"id" validate:"required"`
-	Title      string    `json:"title"`
-	Date       time.Time `json:"date"`
+	ID    uint      `json:"id" validate:"required"`
+	Title string    `json:"title"`
+	Date  time.Time `json:"date"`
 }
 
 func (th *HttpTodoHandler) CreateTodoHandler(c fiber.Ctx) error {
-	todo_detail := new(CreateTodoInput)
-	if err := c.Bind().Body(todo_detail); err != nil {
+	todoDetail := new(CreateTodoInput)
+	if err := c.Bind().Body(todoDetail); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	if err := validate.Struct(todo_detail); err != nil {
+	if err := validate.Struct(todoDetail); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input => " + err.Error()})
 	}
 	userID, ok := c.Locals("user_id").(uint)
@@ -42,12 +43,12 @@ func (th *HttpTodoHandler) CreateTodoHandler(c fiber.Ctx) error {
 			"error": "user_id not found or invalid",
 		})
 	}
-	
+
 	todo := entity.Todo{
-		Title: todo_detail.Title,
-		Date: todo_detail.Date,
-		CategoryID: todo_detail.CategoryID,
-		UserID: userID,
+		Title:      todoDetail.Title,
+		Date:       todoDetail.Date,
+		CategoryID: todoDetail.CategoryID,
+		UserID:     userID,
 	}
 
 	if err := th.todoUseCase.CreateTodo(todo); err != nil {
@@ -90,7 +91,7 @@ func (th *HttpTodoHandler) GetAllTodoByUserIDHandler(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive all todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"todos" : todos, 
+		"todos": todos,
 	})
 }
 
@@ -111,19 +112,17 @@ func (th *HttpTodoHandler) GetTodoByIDHandler(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"todo" : todo, 
+		"todo": todo,
 	})
 
 }
 
 func (th *HttpTodoHandler) GetAllTodosHandler(c fiber.Ctx) error {
-	todos, err := th.todoUseCase.GetAllTodos(); 
+	todos, err := th.todoUseCase.GetAllTodos()
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive all todo !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"todos" : todos, 
+		"todos": todos,
 	})
 }
-
-

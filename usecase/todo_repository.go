@@ -6,9 +6,9 @@ import (
 
 type TodoRepository interface {
 	Create(todo entity.Todo) error
-	Get(todo_id uint) (entity.Todo, error)
-	GetAll() ([]entity.Todo, error)
-	GetAllByUserID(user_id uint) ([]entity.Todo, error)
+	Get(todoID uint) (entity.Todo, error)
+	FindAll() ([]entity.Todo, error)
+	FindByUser(userID uint) ([]entity.Todo, error)
 	Update(todo entity.Todo) error
-	Delete(todo_id uint) error
+	Delete(todoID uint) error
 }

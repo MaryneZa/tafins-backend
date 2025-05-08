@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"gorm.io/gorm"
-	"github.com/gofiber/fiber/v3"
 	"github.com/MaryneZa/tafins-backend/interface/handler"
 	"github.com/MaryneZa/tafins-backend/interface/repository"
 	"github.com/MaryneZa/tafins-backend/usecase"
+	"github.com/gofiber/fiber/v3"
+	"gorm.io/gorm"
 )
 
 func TodoRoutes(db *gorm.DB) *fiber.App {

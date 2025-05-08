@@ -35,7 +35,7 @@ func (hc *HttpCategoryHandler) CreateCategoryHandler(c fiber.Ctx) error {
 	if err := hc.categoryUseCase.CreateCategory(*category); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot create category !!"})
 	}
-	return c.Status(fiber.StatusOK).JSON((fiber.Map{"massage" : "Create category successfully !"}))
+	return c.Status(fiber.StatusOK).JSON((fiber.Map{"massage": "Create category successfully !"}))
 }
 
 func (hc *HttpCategoryHandler) GetAllCategoryHandler(c fiber.Ctx) error {
@@ -51,6 +51,6 @@ func (hc *HttpCategoryHandler) GetAllCategoryHandler(c fiber.Ctx) error {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot retreive all category !!"})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"categories" : categories, 
+		"categories": categories,
 	})
 }

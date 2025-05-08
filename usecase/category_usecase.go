@@ -6,8 +6,8 @@ import (
 
 type CategoryUseCase interface {
 	CreateCategory(c entity.Category) error
-	GetAllCategoryByUserID(user_id uint) ([]entity.Category,error)
-	GetCategoryByID(category_id uint) error
+	GetAllCategoryByUserID(userID uint) ([]entity.Category, error)
+	// GetCategoryByID(categoryID uint) error
 }
 
 type CategoryService struct {
@@ -22,11 +22,10 @@ func (cs *CategoryService) CreateCategory(c entity.Category) error {
 	return cs.repo.Create(c)
 }
 
-func (cs *CategoryService) GetAllCategoryByUserID(user_id uint) ([]entity.Category,error) {
-	return cs.repo.GetAllByUserID(user_id)  
+func (cs *CategoryService) GetAllCategoryByUserID(userID uint) ([]entity.Category, error) {
+	return cs.repo.FindByUser(userID)
 }
 
-func (cs *CategoryService) GetCategoryByID(id uint) error {
-	return cs.GetCategoryByID(id)
-}
-
+// func (cs *CategoryService) GetCategoryByID(id uint) error {
+// 	return cs.repo.GetCategoryByID(id)
+// }
