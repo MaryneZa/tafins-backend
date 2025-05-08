@@ -59,9 +59,11 @@ func (tr *TransactionRepository) FindByUserAndType(userID uint, transactionType 
 
 func (tr *TransactionRepository) TotalExpenseAmountByUserAndMonth(userID uint, year int, month int) (float32, error) {
 	var expense_amount float32
-	start := time.Date(year, time.Month(month), 0, 0, 0, 0, 0, time.UTC)
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	end := start.AddDate(0, 1, 0).Add(-time.Nanosecond)
-	if err := tr.db.Model(&entity.Transaction{}).Select("user_id, sum(amount) as amount").Group("user_id").Having("user_id = ? AND type = 'expense' AND transaction_date BETWEEN ? AND ? ", userID, start, end).Find(&expense_amount).Error; err != nil {
+	if err := tr.db.Model(&entity.Transaction{}).
+		Select("COALESCE(SUM(amount), 0)").
+		Where("user_id = ? AND type = 'expense' AND transaction_date BETWEEN ? AND ? ", userID, start, end).Find(&expense_amount).Error; err != nil {
 		return 0, err
 	}
 	return expense_amount, nil
@@ -69,7 +71,10 @@ func (tr *TransactionRepository) TotalExpenseAmountByUserAndMonth(userID uint, y
 
 func (tr *TransactionRepository) TotalExpenseAmountByUserAndDateRange(userID uint, start, end time.Time) (float32, error) {
 	var amount float32
-	if err := tr.db.Model(&entity.Transaction{}).Select("user_id, sum(amount) as amount").Group("user_id").Having("user_id = ? AND type = 'expense' AND transaction_date BETWEEN ? AND ?", userID, start, end).Find(&amount).Error; err != nil {
+	if err := tr.db.Model(&entity.Transaction{}).
+			Select("COALESCE(SUM(amount), 0)").
+			Where("user_id = ? AND type = 'expense' AND transaction_date BETWEEN ? AND ?", userID, start, end).
+			Find(&amount).Error; err != nil {
 		return 0, err
 	}
 	return amount, nil
@@ -79,7 +84,10 @@ func (tr *TransactionRepository) TotalReceiveAmountByUserAndMonth(userID uint, y
 	var receive_amount float32
 	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
 	end := start.AddDate(0, 1, 0).Add(-time.Nanosecond)
-	if err := tr.db.Model(&entity.Transaction{}).Select("user_id, sum(amount) as amount").Group("user_id").Having("user_id = ? AND type = 'receive' AND transaction_date BETWEEN ? AND ? ", userID, start, end).Find(&receive_amount).Error; err != nil {
+	if err := tr.db.Model(&entity.Transaction{}).
+			Select("COALESCE(SUM(amount), 0)").
+			Where("user_id = ? AND type = 'receive' AND transaction_date BETWEEN ? AND ? ", userID, start, end).
+			Find(&receive_amount).Error; err != nil {
 		return 0, err
 	}
 	return receive_amount, nil
@@ -87,7 +95,10 @@ func (tr *TransactionRepository) TotalReceiveAmountByUserAndMonth(userID uint, y
 
 func (tr *TransactionRepository) TotalReceiveAmountByUserAndDateRange(userID uint, start, end time.Time) (float32, error) {
 	var amount float32
-	if err := tr.db.Model(&entity.Transaction{}).Select("user_id, sum(amount) as amount").Group("user_id").Having("user_id = ? AND type = 'receive' AND transaction_date BETWEEN ? AND ?", userID, start, end).Find(&amount).Error; err != nil {
+	if err := tr.db.Model(&entity.Transaction{}).
+			Select("COALESCE(SUM(amount), 0)").
+			Where("user_id = ? AND type = 'receive' AND transaction_date BETWEEN ? AND ?", userID, start, end).
+			Scan(&amount).Error; err != nil {
 		return 0, err
 	}
 	return amount, nil

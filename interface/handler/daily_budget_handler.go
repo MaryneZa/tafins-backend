@@ -59,7 +59,7 @@ func (dh *HttpDailyBudgetHandler) DeleteDailyBudgetHandler(c fiber.Ctx) error {
 	if err := dh.dailyBudgetUseCase.DeleteBudget(userID, date.Date); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot delete daily budget !!"})
 	}
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Creat daily budget successfully !!"})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Delete daily budget successfully !!"})
 
 }
 

@@ -12,5 +12,5 @@ type MonthlyBudget struct {
 	LimitAmount float32 `json:"limit_amount"`
 
 	UserID uint `json:"user_id"`
-	User   User `gorm:"foreignKey:UserID"` // preload user info alongside a todo
+	// User   User `gorm:"foreignKey:UserID"` // preload user info alongside a todo
 }

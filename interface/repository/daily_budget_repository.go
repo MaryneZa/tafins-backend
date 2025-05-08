@@ -2,6 +2,7 @@ package repository
 
 
 import (
+	"errors"
 	"time"
 	"gorm.io/gorm"
 	"github.com/MaryneZa/tafins-backend/entity"
@@ -22,15 +23,24 @@ func (dr *DailyBudgetRepository) Create(dailyBudgets entity.DailyBudget) error {
 }
 
 func (dr *DailyBudgetRepository) Update(userID uint, date time.Time, amount float32) error {
-	return dr.db.Model(&entity.DailyBudget{}).Where("user_id = ? AND date = ?", userID, date).Update("amount", amount).Error
+	return dr.db.Model(&entity.DailyBudget{}).Where("user_id = ? AND date = ?", userID, date).Update("limit_amount", amount).Error
 }
+
+
 func (dr *DailyBudgetRepository) FindByUserAndDate(userID uint, date time.Time) (entity.DailyBudget, error) {
 	var dailyBudget entity.DailyBudget
-	if err := dr.db.Where("user_id = ? AND date = ?", userID, date).Find(&dailyBudget).Error; err != nil {
+	err := dr.db.Where("user_id = ? AND date = ?", userID, date).First(&dailyBudget).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return entity.DailyBudget{}, errors.New("not found daily budget on date : " + date.String())
+		}
 		return entity.DailyBudget{}, err
 	}
+
 	return dailyBudget, nil
 }
+
 
 func (dr *DailyBudgetRepository) Exists(userID uint, date time.Time) (bool, error) {
 	dailyBudget, err := dr.FindByUserAndDate(userID, date)
@@ -69,7 +79,10 @@ func (dr *DailyBudgetRepository) ListByDateRange(userID uint, startDate, endDate
 
 func (dr *DailyBudgetRepository) SumLimitByDateRange(userID uint, startDate, endDate time.Time) (float32, error) {
 	var amount float32
-	if err := dr.db.Model(&entity.DailyBudget{}).Select("user_id, sum(limit_amount) as amount").Group("user_id").Having("user_id = ? AND date BETWEEN ? AND ?", userID, startDate, endDate).Find(&amount).Error; err != nil {
+	if err := dr.db.Model(&entity.DailyBudget{}).
+			Select("COALESCE(SUM(limit_amount), 0)").
+			Where("user_id = ? AND date BETWEEN ? AND ?", userID, startDate, endDate).
+			Find(&amount).Error; err != nil {
 		return 0, err
 	}
 	return amount, nil

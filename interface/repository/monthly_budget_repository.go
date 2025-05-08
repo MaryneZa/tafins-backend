@@ -32,7 +32,10 @@ func (mr *MonthlyBudgetRepository) FindByUserAndMonth(userID uint, year int, mon
 
 func (mr *MonthlyBudgetRepository) FindLimitValueByUserAndMonth(userID uint, year int, month int) (float32, error) {
 	var amount float32
-	if err := mr.db.Table("monthly_budgets").Select("limit_amount").Where("user_id = ? AND year = ? AND month = ?", userID, year, month).Scan(&amount).Error; err != nil {
+	if err := mr.db.Table("monthly_budgets").
+			Select("limit_amount").
+			Where("user_id = ? AND year = ? AND month = ?", userID, year, month).
+			Scan(&amount).Error; err != nil {
 		return 0, err
 	}
 	return amount, nil
@@ -73,7 +76,9 @@ func (mr *MonthlyBudgetRepository) ListByUserAndYear(userID uint, year int) ([]e
 }
 func (mr *MonthlyBudgetRepository) SumAnnualBudget(userID uint, year int) (float32, error) {
 	var amount float32
-	if err := mr.db.Model(&entity.MonthlyBudget{}).Select("user_id, sum(limit_amount) as amount").Group("user_id").Having("user_id = ? AND year = ?", userID, year).Find(&amount).Error; err != nil {
+	if err := mr.db.Model(&entity.MonthlyBudget{}).
+	Select("COALESCE(SUM(limit_amount), 0)").
+	Where("user_id = ? AND year = ?", userID, year).Find(&amount).Error; err != nil {
 		return 0, err
 	}
 	return amount, nil
