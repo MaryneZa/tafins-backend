@@ -6,6 +6,7 @@ import (
 
 	"github.com/MaryneZa/tafins-backend/entity"
 	"github.com/MaryneZa/tafins-backend/usecase"
+	"github.com/MaryneZa/tafins-backend/utils"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -37,11 +38,9 @@ func (th *HttpTodoHandler) CreateTodoHandler(c fiber.Ctx) error {
 	if err := validate.Struct(todoDetail); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid input => " + err.Error()})
 	}
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	todo := entity.Todo{
@@ -63,13 +62,10 @@ func (th *HttpTodoHandler) UpdateTodoHandler(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	// userID, ok := c.Locals("user_id").(uint)
-	// if !ok {
-	// 	return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-	// 		"error": "user_id not found or invalid",
-	// 	})
+	// userID, err := utils.GetUserID(c)
+	// if err != nil {
+	// 	return err
 	// }
-	// todo.UserID = userID
 
 	if err := th.todoUseCase.UpdateTodo(*todo); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot update todo !!" + err.Error()})
@@ -79,11 +75,9 @@ func (th *HttpTodoHandler) UpdateTodoHandler(c fiber.Ctx) error {
 }
 
 func (th *HttpTodoHandler) GetAllTodoByUserIDHandler(c fiber.Ctx) error {
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	todos, err := th.todoUseCase.GetAllTodosByUserID(userID)

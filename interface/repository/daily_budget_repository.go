@@ -33,7 +33,7 @@ func (dr *DailyBudgetRepository) FindByUserAndDate(userID uint, date time.Time) 
 
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return entity.DailyBudget{}, errors.New("not found daily budget on date : " + date.String())
+			return entity.DailyBudget{}, err
 		}
 		return entity.DailyBudget{}, err
 	}

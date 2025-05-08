@@ -6,6 +6,7 @@ import (
 
 	"github.com/MaryneZa/tafins-backend/entity"
 	"github.com/MaryneZa/tafins-backend/usecase"
+	"github.com/MaryneZa/tafins-backend/utils"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -28,7 +29,7 @@ func NewHttpTransactionHandler(transactionUseCase usecase.TransactionUseCase) *H
 
 type DateRangeInput struct {
 	StartDate time.Time `json:"start_date"`
-	EndDate time.Time `json:"end_date"`
+	EndDate   time.Time `json:"end_date"`
 }
 
 type MonthYearInput struct {
@@ -36,17 +37,14 @@ type MonthYearInput struct {
 	Year  int `json:"year"`
 }
 
-
 func (th *HttpTransactionHandler) CreateTransactionHandler(c fiber.Ctx) error {
 	t := new(entity.Transaction)
 	if err := c.Bind().Body(&t); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	t.UserID = userID
 	if err := th.transactionUseCase.CreateTransaction(*t); err != nil {
@@ -77,11 +75,9 @@ func (th *HttpTransactionHandler) GetAllTransactionByTodoIDHandler(c fiber.Ctx) 
 }
 
 func (th *HttpTransactionHandler) GetAllTransactionByUserIDHandler(c fiber.Ctx) error {
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	transactions, err := th.transactionUseCase.GetAllTransactionByUserID(userID)
@@ -96,16 +92,14 @@ func (th *HttpTransactionHandler) GetAllTransactionByUserIDHandler(c fiber.Ctx) 
 
 func (th *HttpTransactionHandler) FindByUserAndDateRangeHandler(c fiber.Ctx) error {
 	date := new(DateRangeInput)
-	
+
 	if err := c.Bind().Body(&date); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	transactions, err := th.transactionUseCase.FindByUserAndDateRange(userID, date.StartDate, date.EndDate)
@@ -120,16 +114,14 @@ func (th *HttpTransactionHandler) FindByUserAndDateRangeHandler(c fiber.Ctx) err
 
 func (th *HttpTransactionHandler) FindByUserAndTypeHandler(c fiber.Ctx) error {
 	var transactionType string
-	
+
 	if err := c.Bind().Body(&transactionType); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	transactions, err := th.transactionUseCase.FindByUserAndType(userID, transactionType)
@@ -144,16 +136,14 @@ func (th *HttpTransactionHandler) FindByUserAndTypeHandler(c fiber.Ctx) error {
 
 func (th *HttpTransactionHandler) TotalExpenseAmountByUserAndDateRangeHandler(c fiber.Ctx) error {
 	date := new(DateRangeInput)
-	
+
 	if err := c.Bind().Body(&date); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	amount, err := th.transactionUseCase.TotalExpenseAmountByUserAndDateRange(userID, date.StartDate, date.EndDate)
@@ -168,16 +158,14 @@ func (th *HttpTransactionHandler) TotalExpenseAmountByUserAndDateRangeHandler(c 
 
 func (th *HttpTransactionHandler) TotalExpenseAmountByUserAndMonth(c fiber.Ctx) error {
 	input := new(MonthYearInput)
-	
+
 	if err := c.Bind().Body(&input); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	amount, err := th.transactionUseCase.TotalExpenseAmountByUserAndMonth(userID, input.Year, input.Month)
@@ -192,16 +180,14 @@ func (th *HttpTransactionHandler) TotalExpenseAmountByUserAndMonth(c fiber.Ctx) 
 
 func (th *HttpTransactionHandler) TotalReceiveAmountByUserAndDateRangeHandler(c fiber.Ctx) error {
 	date := new(DateRangeInput)
-	
+
 	if err := c.Bind().Body(&date); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	amount, err := th.transactionUseCase.TotalReceiveAmountByUserAndDateRange(userID, date.StartDate, date.EndDate)
@@ -216,16 +202,14 @@ func (th *HttpTransactionHandler) TotalReceiveAmountByUserAndDateRangeHandler(c 
 
 func (th *HttpTransactionHandler) TotalReceiveAmountByUserAndMonth(c fiber.Ctx) error {
 	input := new(MonthYearInput)
-	
+
 	if err := c.Bind().Body(&input); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	amount, err := th.transactionUseCase.TotalReceiveAmountByUserAndMonth(userID, input.Year, input.Month)
@@ -237,6 +221,3 @@ func (th *HttpTransactionHandler) TotalReceiveAmountByUserAndMonth(c fiber.Ctx) 
 	})
 
 }
-
-
-

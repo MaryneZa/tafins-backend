@@ -2,10 +2,12 @@ package handler
 
 import (
 	"time"
+
 	"github.com/MaryneZa/tafins-backend/entity"
 	"github.com/MaryneZa/tafins-backend/usecase"
+	"github.com/MaryneZa/tafins-backend/utils"
 	"github.com/gofiber/fiber/v3"
-) 
+)
 
 type HttpDailyBudgetHandler struct {
 	dailyBudgetUseCase usecase.DailyBudgetUsecase
@@ -17,28 +19,25 @@ func NewHttpDailyBudgetHandler(dailyBudgetUseCase usecase.DailyBudgetUsecase) *H
 
 type DailyBudgetDateRangeInput struct {
 	StartDate time.Time `json:"start_date"`
-	EndDate time.Time `json:"end_date"`
+	EndDate   time.Time `json:"end_date"`
 }
 type DailyBudgetInput struct {
-	Date time.Time `json:"date"`
-	Amount float32 `json:"amount"`
+	Date   time.Time `json:"date"`
+	Amount float32   `json:"amount"`
 }
-
 
 func (dh *HttpDailyBudgetHandler) CreateDailyBudgetHandler(c fiber.Ctx) error {
 	dailyBudget := new(entity.DailyBudget)
 	if err := c.Bind().Body(&dailyBudget); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	dailyBudget.UserID = userID
 	if err := dh.dailyBudgetUseCase.CreateBudget(*dailyBudget); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot create daily budget !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Create budget successfully !!"})
 }
@@ -50,14 +49,12 @@ func (dh *HttpDailyBudgetHandler) DeleteDailyBudgetHandler(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	if err := dh.dailyBudgetUseCase.DeleteBudget(userID, date.Date); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot delete daily budget !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Delete daily budget successfully !!"})
 
@@ -66,16 +63,13 @@ func (dh *HttpDailyBudgetHandler) DeleteDailyBudgetHandler(c fiber.Ctx) error {
 func (dh *HttpDailyBudgetHandler) GetDailyBudgetByDateHandler(c fiber.Ctx) error {
 	date := new(DailyBudgetInput)
 
-
 	if err := c.Bind().Body(date); err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	dailyBudget, err := dh.dailyBudgetUseCase.GetBudgetByDate(userID, date.Date)
 	if err != nil {
@@ -93,11 +87,9 @@ func (dh *HttpDailyBudgetHandler) GetTotalLimitDailyBudgetByDateRangeHandler(c f
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	amount, err := dh.dailyBudgetUseCase.GetTotalLimit(userID, date.StartDate, date.EndDate)
 	if err != nil {
@@ -115,11 +107,9 @@ func (dh *HttpDailyBudgetHandler) GetListDailyBudgetsByDateRangeHandler(c fiber.
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	dailyBudgets, err := dh.dailyBudgetUseCase.ListBudgets(userID, date.StartDate, date.EndDate)
 	if err != nil {
@@ -137,14 +127,12 @@ func (dh *HttpDailyBudgetHandler) UpdateDailyBudgetHandler(c fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 	if err := dh.dailyBudgetUseCase.UpdateBudget(userID, data.Date, data.Amount); err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "cannot update daily budget !!"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{"message": "Update daily budget successfully !!"})
 }

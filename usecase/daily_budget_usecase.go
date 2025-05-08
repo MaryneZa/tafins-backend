@@ -4,6 +4,7 @@ import (
 	"time"
 	"errors"
 	"github.com/MaryneZa/tafins-backend/entity"
+	"gorm.io/gorm"
 )
 
 type DailyBudgetUsecase interface {
@@ -27,7 +28,7 @@ func NewDailyBudgetService(repo DailyBudgetRepository) DailyBudgetUsecase {
 
 func (ds *DailyBudgetService) CreateBudget(dailyBudget entity.DailyBudget) error {
 	isExist, err := ds.repo.Exists(dailyBudget.UserID, dailyBudget.Date)
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return err
 	}
 

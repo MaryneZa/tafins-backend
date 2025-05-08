@@ -3,6 +3,7 @@ package middleware
 import (
 	"os"
 	"fmt"
+	"strings"
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -16,9 +17,20 @@ type TokenCustomClaims struct {
 func AuthMiddleware(c fiber.Ctx) error {
 	secretKey := os.Getenv("JWT_SECRETKEY")
 
-	cookie := c.Cookies("access_token")
+	authHeader := c.Get("Authorization")
+	var tokenString string
 
-	token, err := jwt.ParseWithClaims(cookie, &TokenCustomClaims{}, func(token *jwt.Token) (interface{}, error){
+	if strings.HasPrefix(authHeader, "Bearer ") {
+		tokenString = authHeader[7:]
+	} else {
+		tokenString = c.Cookies("access_token")
+	}
+
+	if tokenString == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Missing token"})
+	}
+
+	token, err := jwt.ParseWithClaims(tokenString, &TokenCustomClaims{}, func(token *jwt.Token) (interface{}, error){
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("error, unexpected signing method: %v", token.Header["alg"])
 		}

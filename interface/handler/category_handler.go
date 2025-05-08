@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/MaryneZa/tafins-backend/entity"
 	"github.com/MaryneZa/tafins-backend/usecase"
+	"github.com/MaryneZa/tafins-backend/utils"
 	"github.com/gofiber/fiber/v3"
 )
 
@@ -17,11 +18,9 @@ func NewHttpCategoryHandler(c usecase.CategoryUseCase) *HttpCategoryHandler {
 func (hc *HttpCategoryHandler) CreateCategoryHandler(c fiber.Ctx) error {
 	category := new(entity.Category)
 
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	category.UserID = userID
@@ -39,11 +38,9 @@ func (hc *HttpCategoryHandler) CreateCategoryHandler(c fiber.Ctx) error {
 }
 
 func (hc *HttpCategoryHandler) GetAllCategoryHandler(c fiber.Ctx) error {
-	userID, ok := c.Locals("user_id").(uint)
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"error": "user_id not found or invalid",
-		})
+	userID, err := utils.GetUserID(c)
+	if err != nil {
+		return err
 	}
 
 	categories, err := hc.categoryUseCase.GetAllCategoryByUserID(userID)
